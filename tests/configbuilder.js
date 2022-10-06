@@ -5,7 +5,7 @@ const assert = require("assert");
 function assertResolve(input, expected) {
     const builder = new ConfigBuilder();
     builder.loadRawRemotes(input);
-    if(!expected){
+    if (!expected) {
         return console.log(builder.getRemotes());
     }
     assert.deepEqual(builder.getRemotes(), expected);
@@ -35,6 +35,149 @@ describe('attempt resolving', function () {
                 "drive_id": "***drive_id***",
                 "drive_type": "business",
             },
+        });
+    });
+
+    it("resolves a config with nested remotes", async function () {
+        assertResolve({
+            "sqfs-union": {
+                "type": "union",
+                "upstreams": [
+                    "queue/:ro",
+                    "done/:ro",
+                    {
+                        "type": "crypt",
+                        "remote": {
+                            "type": "memory"
+                        },
+                        "filename_encryption": "off",
+                        "directory_name_encryption": "false",
+                        "password": "xtQ3DAvNBi87vip07G468lDIbFdVch3XIyjI",
+                    }
+                ]
+            },
+        }, {
+            '____sqfs-union_crypt_1_memory_1': { type: 'memory' },
+            '__sqfs-union_crypt_1': {
+                type: 'crypt',
+                remote: '____sqfs-union_crypt_1_memory_1:',
+                filename_encryption: 'off',
+                directory_name_encryption: 'false',
+                password: 'xtQ3DAvNBi87vip07G468lDIbFdVch3XIyjI'
+            },
+            'sqfs-union': {
+                type: 'union',
+                upstreams: 'queue/:ro done/:ro __sqfs-union_crypt_1:'
+            }
+        });
+    });
+
+    it("resolves a config with combine backend", async function () {
+        assertResolve({
+            // test 1: upstreams is just string
+            "by-string": {
+                "type": "combine",
+
+                "upstreams": "hello=:memory: world=remote:",
+            },
+            // test 2: upstreams is object, but no inline backend
+            "by-object-no-inline": {
+                "type": "combine",
+
+                "upstreams": {
+                    "hello": ":memory:",
+                    "world": "remote:",
+                },
+            },
+            // test 3: upstreams is object, and all of them are inline backend
+            "by-object-all-inline": {
+                "type": "combine",
+
+                "upstreams": {
+                    "hello": {
+                        "type": "memory",
+                    },
+                    "world": {
+                        "type": "union",
+                        "upstreams": [
+                            // test 6: array of remotes without inline
+                            "queue/:ro",
+                            "done/:ro",
+                        ],
+                        "@path": "test/",
+                    },
+                },
+            },
+            // test 4: upstreams is object, but not all of them are inline backend
+            "by-object-some-inline": {
+                "type": "combine",
+
+                "upstreams": {
+                    "hello": {
+                        "type": "memory",
+                    },
+                    "world": {
+                        "type": "union",
+                        "upstreams": [
+                            // test 6: array of remotes without inline
+                            "queue/:ro",
+                            "done/:ro",
+                        ],
+                        "@path": "test/",
+                    },
+                    "foo": "bar:",
+                },
+            },
+        }, {
+            'by-string': { type: 'combine', upstreams: 'hello=:memory: world=remote:' },
+            'by-object-no-inline': { type: 'combine', upstreams: 'hello=:memory: world=remote:' },
+            '__by-object-all-inline_memory_1': { type: 'memory' },
+            '__by-object-all-inline_union_1': { type: 'union', upstreams: 'queue/:ro done/:ro' },
+            'by-object-all-inline': {
+                type: 'combine',
+                upstreams: 'hello=__by-object-all-inline_memory_1: world=__by-object-all-inline_union_1:test/'
+            },
+            '__by-object-some-inline_memory_1': { type: 'memory' },
+            '__by-object-some-inline_union_1': { type: 'union', upstreams: 'queue/:ro done/:ro' },
+            'by-object-some-inline': {
+                type: 'combine',
+                upstreams: 'hello=__by-object-some-inline_memory_1: world=__by-object-some-inline_union_1:test/ foo=bar:'
+            }
+        });
+    });
+
+    it("resolves a config with a union with one backend", async function () {
+        assertResolve({
+            "sqfs-union": {
+                "type": "union",
+                /*
+                 * NB: this specification is invalid according to rclone itself -
+                 * $ rclone --union-upstreams=:memory: ls :union:
+                 * Failed to create file system for ":union:": union can't point to a single upstream - check the value of the upstreams setting
+                 */
+                "upstreams": {
+                    "type": "crypt",
+                    "remote": {
+                        "type": "memory"
+                    },
+                    "filename_encryption": "off",
+                    "directory_name_encryption": "false",
+                    "password": "xtQ3DAvNBi87vip07G468lDIbFdVch3XIyjI",
+                },
+            },
+        }, {
+            '____sqfs-union_crypt_1_memory_1': { type: 'memory' },
+            '__sqfs-union_crypt_1': {
+                type: 'crypt',
+                remote: '____sqfs-union_crypt_1_memory_1:',
+                filename_encryption: 'off',
+                directory_name_encryption: 'false',
+                password: 'xtQ3DAvNBi87vip07G468lDIbFdVch3XIyjI'
+            },
+            'sqfs-union': {
+                type: 'union',
+                upstreams: '__sqfs-union_crypt_1:'
+            }
         });
     });
 
