@@ -1,4 +1,4 @@
-const structuredClone = require("@ungap/structured-clone");
+const structuredClone = require("@ungap/structured-clone").default;
 
 /**
  * A reserved key for specifying path
@@ -70,15 +70,15 @@ class ConfigBuilder {
                 for (const key of backendInfo.slice(1)) {
                     if (!remote[key])
                         continue;
-                    const remotes = remote[key];
+                    let remotes = remote[key];
                     // no need to try to replace
                     if (typeof remotes === "string")
                         continue;
+                    const remotesIsObject = Object.prototype.toString.call(remotes) === "[object Object]";
 
                     const repr = [];
 
-                    if (remote.type === "combine" &&
-                        Object.prototype.toString.call(remotes) === "[object Object]") {
+                    if (remote.type === "combine" && remotesIsObject) {
                         /***
                          * {
                          *   "path": remote, ...
@@ -89,6 +89,8 @@ class ConfigBuilder {
                         }
                         // -> path=remote:blablabla/
                     } else {
+                        if (remotesIsObject)
+                            remotes = [remotes];
                         for (const rem of remotes) {
                             repr.push(this.resolveNewRemote(rem, newName));
                         }
@@ -118,10 +120,16 @@ class ConfigBuilder {
     }
 
     getRemotes() {
-        const cloned = structuredClone(this.wrappingBackends);
-        for (const v of cloned) {
+        const cloned = structuredClone(this.config);
+        for (const v of Object.values(cloned)) {
             delete v["@path"];
         }
         return cloned;
     }
+}
+
+module.exports = {
+    ConfigBuilder,
+
+    RemotePathKey,
 }
