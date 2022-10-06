@@ -1,4 +1,5 @@
 const structuredClone = require("@ungap/structured-clone").default;
+const { shellEscape } = require("../src/util");
 
 /**
  * A reserved key for specifying path
@@ -96,14 +97,15 @@ class ConfigBuilder {
                         }
                     }
 
-                    remote[key] = repr.join(" ");
+                    // it has no problem as shellEscape only takes 1 parameter
+                    remote[key] = repr.map(shellEscape).join(" ");
                 }
             } else {
                 // single
                 for (const key of backendInfo.slice(1)) {
                     if (!remote[key])
                         continue;
-                    remote[key] = this.resolveNewRemote(remote[key], newName);
+                    remote[key] = shellEscape(this.resolveNewRemote(remote[key], newName));
                 }
             }
         }
