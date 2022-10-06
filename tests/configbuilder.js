@@ -1,12 +1,46 @@
 const { ConfigBuilder } = require("../src/index");
 const assert = require("assert");
 
+
+function assertResolve(input, expected) {
+    const builder = new ConfigBuilder();
+    builder.loadRawRemotes(input);
+    if(!expected){
+        return console.log(builder.getRemotes());
+    }
+    assert.deepEqual(builder.getRemotes(), expected);
+}
+
+
 describe('attempt resolving', function () {
-    // test cases are modified version of https://forum.rclone.org/t/local-and-hasher-dont-work-nicely-each-other/33179/3?u=lesmiscore
-    // except combine
+
+    it("resolves a simple config with remotes", async function () {
+        assertResolve({
+            "test-memory": {
+                "type": "memory",
+            },
+            "onedrive-my": {
+                "type": "onedrive",
+                "token": "***token***",
+                "drive_id": "***drive_id***",
+                "drive_type": "business",
+            },
+        }, {
+            "test-memory": {
+                "type": "memory",
+            },
+            "onedrive-my": {
+                "type": "onedrive",
+                "token": "***token***",
+                "drive_id": "***drive_id***",
+                "drive_type": "business",
+            },
+        });
+    });
+
     it("resolves a complex config (without combine)", async function () {
-        const builder = new ConfigBuilder();
-        builder.loadRawRemotes({
+        // https://forum.rclone.org/t/local-and-hasher-dont-work-nicely-each-other/33179/3?u=lesmiscore
+        assertResolve({
             // test 1: simple remote
             "sqfs-union": {
                 "type": "union",
@@ -52,10 +86,7 @@ describe('attempt resolving', function () {
                 "max_age": "off",
                 "auto_size": "1000G",
             },
-        });
-
-
-        assert.deepEqual({
+        }, {
             '____sqfs-union_crypt_1_memory_1': { type: 'memory' },
             '__sqfs-union_crypt_1': {
                 type: 'crypt',
@@ -83,6 +114,6 @@ describe('attempt resolving', function () {
                 max_age: 'off',
                 auto_size: '1000G'
             }
-        }, builder.getRemotes());
+        });
     });
 });
