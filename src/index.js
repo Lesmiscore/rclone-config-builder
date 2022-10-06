@@ -7,8 +7,8 @@ const RemotePathKey = "@path";
 
 class ConfigBuilder {
     constructor(wrappingBackends = require("./wrapping_backends")) {
-        this.wrappingBackends = wrappingBackends
-        this.config = {}
+        this.wrappingBackends = wrappingBackends;
+        this.config = {};
     }
 
     /**
@@ -70,8 +70,31 @@ class ConfigBuilder {
                 for (const key of backendInfo.slice(1)) {
                     if (!remote[key])
                         continue;
-                    // unfinished
-                    remote[key] = undefined;
+                    const remotes = remote[key];
+                    // no need to try to replace
+                    if (typeof remotes === "string")
+                        continue;
+
+                    const repr = [];
+
+                    if (remote.type === "combine" &&
+                        Object.prototype.toString.call(remotes) === "[object Object]") {
+                        /***
+                         * {
+                         *   "path": remote, ...
+                         * }
+                         */
+                        for (const key in remotes) {
+                            repr.push(`${key}=${this.resolveNewRemote(remotes[key], newName)}`);
+                        }
+                        // -> path=remote:blablabla/
+                    } else {
+                        for (const rem of remotes) {
+                            repr.push(this.resolveNewRemote(rem, newName));
+                        }
+                    }
+
+                    remote[key] = repr.join(" ");
                 }
             } else {
                 // single
@@ -86,5 +109,19 @@ class ConfigBuilder {
         this.config[newName] = remote;
 
         return `${newName}:${subdir}`;
+    }
+
+    loadRawRemotes(obj) {
+        for (const key in obj) {
+            this.resolveNewRemote(obj[key], null, key);
+        }
+    }
+
+    getRemotes() {
+        const cloned = structuredClone(this.wrappingBackends);
+        for (const v of cloned) {
+            delete v["@path"];
+        }
+        return cloned;
     }
 }
