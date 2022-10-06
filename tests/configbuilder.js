@@ -14,7 +14,7 @@ function assertResolve(input, expected) {
 
 describe('attempt resolving', function () {
 
-    it("resolves a simple config with remotes", async function () {
+    it("resolves a simple config with remotes", function () {
         assertResolve({
             "test-memory": {
                 "type": "memory",
@@ -38,7 +38,7 @@ describe('attempt resolving', function () {
         });
     });
 
-    it("resolves a config with nested remotes", async function () {
+    it("resolves a config with nested remotes", function () {
         assertResolve({
             "sqfs-union": {
                 "type": "union",
@@ -72,7 +72,7 @@ describe('attempt resolving', function () {
         });
     });
 
-    it("resolves a config with combine backend", async function () {
+    it("resolves a config with combine backend", function () {
         assertResolve({
             // test 1: upstreams is just string
             "by-string": {
@@ -146,7 +146,7 @@ describe('attempt resolving', function () {
         });
     });
 
-    it("resolves a config with a union with one backend", async function () {
+    it("resolves a config with a union with one backend", function () {
         assertResolve({
             "sqfs-union": {
                 "type": "union",
@@ -181,7 +181,7 @@ describe('attempt resolving', function () {
         });
     });
 
-    it("resolves a complex config (without combine)", async function () {
+    it("resolves a complex config (without combine)", function () {
         // https://forum.rclone.org/t/local-and-hasher-dont-work-nicely-each-other/33179/3?u=lesmiscore
         assertResolve({
             // test 1: simple remote
