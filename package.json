@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/Lesmiscore/rclone-config-builder.git"
   },
-  "author": "",
+  "author": "Lesmiscore",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Lesmiscore/rclone-config-builder/issues"

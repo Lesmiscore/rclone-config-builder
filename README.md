@@ -1,6 +1,13 @@
 # rclone-config-builder
 Config builder in YAML for Rclone
 
+# Installation
+
+```
+npm i -g rclone-config-builder
+```
+
+
 # Usage
 
 ```
