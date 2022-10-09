@@ -1,5 +1,5 @@
 const assert = require("assert");
-const { shellEscape } = require("../src/util");
+const { shellEscape, reveal } = require("../src/util");
 
 describe('tests functions in src/util', function () {
     // https://github.com/python/cpython/blob/0d68879104dfb392d31e52e25dcb0661801a0249/Lib/test/test_shlex.py#L326-L339
@@ -16,5 +16,13 @@ describe('tests functions in src/util', function () {
             assert.equal(shellEscape(`test${u}name`), `'test${u}name'`);
         for (const u of unsafe)
             assert.equal(shellEscape(`test${u}'name'`), `'test${u}'"'"'name'"'"''`);
+    });
+
+
+    it("tests reveal", function () {
+        // they're what rclone gave with "rclone obscure"
+        assert.equal(reveal("AnAk83-IXpSADUJhQQuR-g"), "");
+        assert.equal(reveal("ZqnMBYdt7-WKw54noSMFsKhmY91ButQ8"), "password");
+        assert.equal(reveal("uMdeSMlHag__1-MrodRmxN1QKXNbahU"), "dolphin");
     });
 });

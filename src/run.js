@@ -1,7 +1,8 @@
 const yaml = require("yaml");
 const ini = require("ini");
 const fs = require("fs");
-const { ConfigBuilder } = require(".");
+const { ConfigBuilder } = require("./index");
+const { reveal } = require("./util");
 
 const path = require("path");
 const yargs = require("yargs/yargs");
@@ -37,6 +38,18 @@ yargs(hideBin(process.argv))
             // console.log(ini.encode(remotes));
             fs.writeFileSync(conf, ini.encode(remotes));
         },
-    ).parse();
+    )
+    .command('reveal [text]', 'reveal the obscured password', yar =>
+        yar.positional("text", {
+            describe: "the obscured text",
+        }),
+        ({ text }) => {
+            if (!text) return;
+            console.log(reveal(text));
+        },
+    )
+    .strictCommands()
+    .demandCommand(1)
+    .parse();
 
 // console.log(parsed._)
