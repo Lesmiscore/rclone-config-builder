@@ -2,10 +2,11 @@
   "name": "rclone-config-builder",
   "version": "1.0.0",
   "description": "Config builder in JSON/YAML? for Rclone",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": "./src/run.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Lesmiscore/rclone-config-builder.git"
@@ -17,7 +18,9 @@
   },
   "homepage": "https://github.com/Lesmiscore/rclone-config-builder#readme",
   "dependencies": {
-    "@ungap/structured-clone": "^1.0.1"
+    "@ungap/structured-clone": "^1.0.1",
+    "yaml": "^2.1.3",
+    "yargs": "^17.6.0"
   },
   "devDependencies": {
     "mocha": "10.0.0"
