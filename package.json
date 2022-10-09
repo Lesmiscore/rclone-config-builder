@@ -19,6 +19,7 @@
   "homepage": "https://github.com/Lesmiscore/rclone-config-builder#readme",
   "dependencies": {
     "@ungap/structured-clone": "^1.0.1",
+    "ini": "^3.0.1",
     "yaml": "^2.1.3",
     "yargs": "^17.6.0"
   },
